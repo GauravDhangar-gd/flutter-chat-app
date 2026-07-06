@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/home_screen.dart';
 import 'widgets/call_listener.dart';
 import 'services/notification_service.dart';
+import 'services/theme_service.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,58 +17,71 @@ void main() async {
   );
   await NotificationService().initialize();
 
-  runApp(const MyApp());
+  final themeService = ThemeService();
+
+  await themeService.loadTheme();
+
+  runApp(
+    ChangeNotifierProvider.value(
+      value: themeService,
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
 
-  debugShowCheckedModeBanner: false,
+      title: "Flutter Chat",
 
-  theme: ThemeData(
+      themeMode: context.watch<ThemeService>().themeMode,
 
-    useMaterial3: true,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+        brightness: Brightness.light,
 
-    colorSchemeSeed: Colors.blue,
-
-    inputDecorationTheme: const InputDecorationTheme(
-
-      border: OutlineInputBorder(),
-
-      filled: true,
-
-    ),
-
-    elevatedButtonTheme: ElevatedButtonThemeData(
-
-      style: ElevatedButton.styleFrom(
-
-        minimumSize: const Size(
-          double.infinity,
-          55,
+        inputDecorationTheme:
+            const InputDecorationTheme(
+          border: OutlineInputBorder(),
+          filled: true,
         ),
 
-        shape: RoundedRectangleBorder(
-
-          borderRadius: BorderRadius.circular(
-            12,
+        elevatedButtonTheme:
+            ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(
+              double.infinity,
+              55,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(12),
+            ),
           ),
-
         ),
       ),
-    ),
-  ),
-      //debugShowCheckedModeBanner: false,
-      title: 'Flutter Chat',
-      home: CallListener(
-        child: FirebaseAuth.instance.currentUser != null
-            ? HomeScreen()
-            : const LoginScreen(),
+
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorSchemeSeed: Colors.blue,
       ),
+
+      home: FirebaseAuth.instance.currentUser != null
+          ? const HomeScreen()
+          : const LoginScreen(),
     );
   }
 }

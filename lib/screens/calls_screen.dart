@@ -31,21 +31,29 @@ class CallsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<CallModel>>(
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Calls"),
+    ),
+    body: StreamBuilder<List<CallModel>>(
       stream: callService.getCallHistory(),
       builder: (context, snapshot) {
 
         if (!snapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
 
         final calls = snapshot.data!;
 
         if (calls.isEmpty) {
-          return const Center(
-            child: Text("No call history"),
+          return const Scaffold(
+            body: Center(
+              child: Text("No call history"),
+            ),
           );
         }
 
@@ -87,6 +95,10 @@ class CallsScreen extends StatelessWidget {
           itemBuilder: (context, index) {
 
             final call = calls[index];
+            final otherUserId =
+                call.callerId == currentUser.uid
+                    ? call.receiverId
+                    : call.callerId;
             final currentHeader =
                 getHeader(call.timestamp);
 
@@ -122,8 +134,9 @@ class CallsScreen extends StatelessWidget {
                   ),
 
             StreamBuilder<UserModel>(
+
               stream: firestoreService.getUser(
-                call.receiverId,
+                otherUserId,
               ),
               builder: (context, userSnapshot) {
 
@@ -212,6 +225,7 @@ class CallsScreen extends StatelessWidget {
           },
         );
       },
+    ),
     );
   }
 }

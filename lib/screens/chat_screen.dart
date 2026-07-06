@@ -326,6 +326,7 @@ Future<void> changeWallpaper() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 0,
         elevation: 1,
         title: StreamBuilder<UserModel>(
           stream: firestoreService.getUser(widget.user.uid),
@@ -336,6 +337,7 @@ Future<void> changeWallpaper() async {
             return Row(
               children: [
                 CircleAvatar(
+                  radius: 18,
                   backgroundImage: user.photoUrl.isNotEmpty
                       ? NetworkImage(user.photoUrl)
                       : null,
@@ -344,9 +346,9 @@ Future<void> changeWallpaper() async {
                       : null,
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
 
-                Expanded(
+                Flexible(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment:
@@ -356,7 +358,7 @@ Future<void> changeWallpaper() async {
                         user.name,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                         ),
                       ),
                   
@@ -379,7 +381,7 @@ Future<void> changeWallpaper() async {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                             ),
                           );
                         },
@@ -441,46 +443,44 @@ Future<void> changeWallpaper() async {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SearchScreen(
-                    user: widget.user,
-                  ),
-                ),
-              );
 
-              if (result != null && result is MessageModel) {
-
-                final stream = await chatService
-                    .getMessages(widget.user.uid)
-                    .first;
-
-                final index = stream.indexWhere(
-                  (m) => m.id == result.id,
-                );
-
-                if (index != -1) {
-
-                  scrollController.animateTo(
-                    index * 100,
-                    duration: const Duration(
-                      milliseconds: 500,
-                    ),
-                    curve: Curves.easeInOut,
-                  );
-
-                  highlightMessage(result.id);
-                }
-              }
-            },
-          ),
 
           PopupMenuButton<String>(
             onSelected: (value) async {
+              if (value == "search") {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SearchScreen(
+                      user: widget.user,
+                    ),
+                  ),
+                );
+
+                if (result != null && result is MessageModel) {
+
+                  final stream = await chatService
+                      .getMessages(widget.user.uid)
+                      .first;
+
+                  final index = stream.indexWhere(
+                    (m) => m.id == result.id,
+                  );
+
+                  if (index != -1) {
+
+                    scrollController.animateTo(
+                      index * 100,
+                      duration: const Duration(
+                        milliseconds: 500,
+                      ),
+                      curve: Curves.easeInOut,
+                    );
+
+                    highlightMessage(result.id);
+                  }
+                }
+              }
               if (value == "wallpaper") {
                 await changeWallpaper();
               }
@@ -494,6 +494,10 @@ Future<void> changeWallpaper() async {
               }
             },
             itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: "search",
+                child: Text("Search"),
+              ),
               PopupMenuItem(
                 value: "wallpaper",
                 child: Text("Change Wallpaper"),

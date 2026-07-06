@@ -7,6 +7,7 @@ import 'profile_screen.dart';
 import 'users_screen.dart';
 import 'calls_screen.dart';
 import 'status_screen.dart';
+import 'theme_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,6 +64,22 @@ class _HomeScreenState extends State<HomeScreen>
       appBar: AppBar(
         title: const Text("Flutter Chat"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.palette),
+            tooltip: "Theme",
+            onPressed: () async {
+              final changed = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ThemeScreen(),
+                ),
+              );
+
+              if (changed == true && mounted) {
+                setState(() {});
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
