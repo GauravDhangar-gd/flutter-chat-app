@@ -29,6 +29,8 @@ class MessageModel {
 
   final String forwardedFrom;
 
+  final String videoUrl;
+
 
   MessageModel({
     this.id = "",
@@ -51,6 +53,7 @@ class MessageModel {
     this.forwardedFrom = "",
     this.audioUrl = "",
     this.audioDuration = 0,
+    this.videoUrl = "",
   });
 
   Map<String, dynamic> toMap() {
@@ -74,6 +77,7 @@ class MessageModel {
       "reaction": reaction,
       "isForwarded": isForwarded,
       "forwardedFrom": forwardedFrom,
+      "videoUrl": videoUrl,
     };
   }
 
@@ -113,6 +117,8 @@ class MessageModel {
 
       forwardedFrom:
           map["forwardedFrom"] ?? "",
+      
+      videoUrl: map["videoUrl"] ?? "",
     );
   }
 }

@@ -121,6 +121,57 @@ class ChatService {
           DateTime.now().millisecondsSinceEpoch,
     }, SetOptions(merge: true));
   }
+
+  Future<void> sendVideo(
+    String receiverId,
+    String videoUrl,
+  ) async {
+    final currentUser = _auth.currentUser!;
+
+    final roomId = getChatRoomId(
+      currentUser.uid,
+      receiverId,
+    );
+
+    final message = MessageModel(
+      senderId: currentUser.uid,
+      receiverId: receiverId,
+      message: "",
+      timestamp: DateTime.now(),
+
+      status: "sent",
+
+      messageType: "video",
+
+      videoUrl: videoUrl,
+
+      imageUrl: "",
+      audioUrl: "",
+      audioDuration: 0,
+
+      isSeen: false,
+      isDelivered: true,
+    );
+
+    await _firestore
+        .collection("chat_rooms")
+        .doc(roomId)
+        .collection("messages")
+        .add(message.toMap());
+
+    await _firestore
+        .collection("chat_rooms")
+        .doc(roomId)
+        .set({
+      "users": [
+        currentUser.uid,
+        receiverId,
+      ],
+      "lastMessage": "🎥 Video",
+      "lastMessageTime":
+          DateTime.now().millisecondsSinceEpoch,
+    });
+  }
   Future<void> sendVoiceMessage(
     String receiverId,
     String audioUrl,

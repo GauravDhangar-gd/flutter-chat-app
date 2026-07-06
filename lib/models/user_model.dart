@@ -5,6 +5,7 @@ class UserModel {
   final bool isOnline;
   final String photoUrl;
   final DateTime? lastSeen;
+  final String fcmToken;
 
   UserModel({
     required this.uid,
@@ -13,6 +14,7 @@ class UserModel {
     required this.isOnline,
     required this.photoUrl,
     this.lastSeen,
+    this.fcmToken = "",
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class UserModel {
       "isOnline": isOnline,
       "photoUrl": photoUrl,
       "lastSeen": lastSeen?.millisecondsSinceEpoch,
+      "fcmToken": fcmToken,
     };
   }
 
@@ -38,6 +41,7 @@ class UserModel {
           map["lastSeen"],
         )
       : null,
+      fcmToken: map["fcmToken"] ?? "",
     );
   }
 }

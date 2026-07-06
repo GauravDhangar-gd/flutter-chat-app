@@ -22,6 +22,16 @@ class ImageService {
     return File(image.path);
   }
 
+  Future<File?> pickVideoFromGallery() async {
+    final XFile? video = await _picker.pickVideo(
+      source: ImageSource.gallery,
+    );
+
+    if (video == null) return null;
+
+    return File(video.path);
+  }
+
   /// Pick image from camera
   Future<File?> pickFromCamera() async {
     final XFile? image = await _picker.pickImage(
@@ -32,6 +42,17 @@ class ImageService {
     if (image == null) return null;
 
     return File(image.path);
+  }
+
+  Future<File?> recordVideo() async {
+    final XFile? video = await _picker.pickVideo(
+      source: ImageSource.camera,
+      maxDuration: const Duration(minutes: 2),
+    );
+
+    if (video == null) return null;
+
+    return File(video.path);
   }
 
   /// Upload Image

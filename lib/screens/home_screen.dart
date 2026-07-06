@@ -5,6 +5,8 @@ import '../services/firestore_service.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'users_screen.dart';
+import 'calls_screen.dart';
+import 'status_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -163,6 +165,25 @@ class _HomeScreenState extends State<HomeScreen>
                     context,
                     MaterialPageRoute(
                       builder: (_) => const UsersScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.call),
+                label: const Text(
+                  "Call History",
+                  style: TextStyle(fontSize: 18),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CallsScreen(),
                     ),
                   );
                 },

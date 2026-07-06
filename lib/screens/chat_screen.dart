@@ -17,6 +17,11 @@ import '../widgets/audio_message.dart';
 import 'search_screen.dart';
 import '../services/wallpaper_service.dart';
 import 'forward_screen.dart';
+import '../widgets/video_message.dart';
+import '../services/call_service.dart';
+import 'video_call_screen.dart';
+import 'calling_screen.dart';
+import 'voice_call_screen.dart';
 
 
 
@@ -97,6 +102,30 @@ void highlightMessage(String id) {
   );
 }
 
+Future<void> pickVideo() async {
+  final video =
+      await imageService.pickVideoFromGallery();
+
+  if (video == null) return;
+
+  setState(() {
+    isUploadingImage = true;
+  });
+
+  final url =
+      await imageService.uploadVideo(video);
+
+  setState(() {
+    isUploadingImage = false;
+  });
+
+  if (url == null) return;
+
+  await chatService.sendVideo(
+    widget.user.uid,
+    url,
+  );
+}
 
 Future<void> sendMessage() async {
   String text = messageController.text.trim();
@@ -363,6 +392,55 @@ Future<void> changeWallpaper() async {
           },
         ),
         actions: [
+        IconButton(
+          icon: const Icon(Icons.call),
+          onPressed: () async {
+            final channel =
+                "${currentUser.uid}_${widget.user.uid}_voice";
+
+            await CallService().startCall(
+              callerId: currentUser.uid,
+              receiverId: widget.user.uid,
+              channelName: channel,
+              isVideo: false,
+            );
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => VoiceCallScreen(
+                  channelName: channel,
+                  receiverId: widget.user.uid,
+                ),
+              ),
+            );
+          },
+        ),
+          IconButton(
+            icon: const Icon(Icons.videocam),
+            onPressed: () async {
+              final channel =
+                  "${currentUser.uid}_${widget.user.uid}";
+
+              await CallService().startCall(
+                callerId: currentUser.uid,
+                receiverId: widget.user.uid,
+                channelName: channel,
+                isVideo: true,
+              );
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CallingScreen(
+                    callerId: currentUser.uid,
+                    receiverId: widget.user.uid,
+                    channelName: channel,
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () async {
@@ -706,55 +784,54 @@ Future<void> changeWallpaper() async {
 
                             if (message.isForwarded)
                               const SizedBox(height: 6),
-
-                            message.deletedForEveryone
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: const [
-
-                                      Icon(
-                                        Icons.block,
-                                        size: 18,
-                                        color: Colors.grey,
-                                      ),
-
-                                      SizedBox(width: 6),
-
-                                      Text(
-                                        "This message was deleted",
-                                        style: TextStyle(
-                                          fontStyle: FontStyle.italic,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-
-                                  : message.deletedForEveryone
-                                      ? const Text(
-                                          "This message was deleted",
-                                          style: TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.grey,
-                                          ),
+                                  message.deletedForEveryone
+                                      ? Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const [
+                                            Icon(
+                                              Icons.block,
+                                              size: 18,
+                                              color: Colors.grey,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              "This message was deleted",
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
                                         )
+
                                       : message.messageType == "image"
+
                                           ? ImageMessage(
                                               imageUrl: message.imageUrl,
                                             )
+
                                           : message.messageType == "audio"
+
                                               ? AudioMessage(
                                                   audioUrl: message.audioUrl,
                                                 )
-                                              : Text(
-                                                  message.message,
-                                                  style: TextStyle(
-                                                    color: isMe
-                                                        ? Colors.white
-                                                        : Colors.black,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
+
+
+                                              : message.messageType == "video"
+
+                                                  ? VideoMessage(
+                                                      videoUrl: message.videoUrl,
+                                                    )
+
+                                                  : Text(
+                                                      message.message,
+                                                      style: TextStyle(
+                                                        color: isMe
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
 
                             const SizedBox(height: 5),
 
@@ -896,7 +973,12 @@ Future<void> changeWallpaper() async {
                         icon: const Icon(Icons.emoji_emotions_outlined),
                         onPressed: toggleEmojiKeyboard,
                       ),
-
+                      IconButton(
+                        icon: const Icon(
+                          Icons.videocam,
+                        ),
+                        onPressed: pickVideo,
+                      ),
                       IconButton(
                         icon: const Icon(Icons.photo),
                         onPressed: pickGalleryImage,
