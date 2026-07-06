@@ -167,6 +167,68 @@ class ChatService {
     });
   }
 
+  Future<void> forwardMessage(
+    String receiverId,
+    MessageModel message,
+  ) async {
+    final currentUser = _auth.currentUser!;
+
+    final roomId = getChatRoomId(
+      currentUser.uid,
+      receiverId,
+    );
+
+    final forwardedMessage = MessageModel(
+      senderId: currentUser.uid,
+      receiverId: receiverId,
+
+      message: message.message,
+      timestamp: DateTime.now(),
+
+      status: "sent",
+
+      messageType: message.messageType,
+
+      imageUrl: message.imageUrl,
+
+      audioUrl: message.audioUrl,
+
+      audioDuration: message.audioDuration,
+
+      isDelivered: true,
+
+      isSeen: false,
+
+      isForwarded: true,
+
+      forwardedFrom: message.senderId,
+    );
+
+    await _firestore
+        .collection("chat_rooms")
+        .doc(roomId)
+        .collection("messages")
+        .add(forwardedMessage.toMap());
+
+    await _firestore
+        .collection("chat_rooms")
+        .doc(roomId)
+        .set({
+      "users": [
+        currentUser.uid,
+        receiverId,
+      ],
+      "lastMessage":
+          message.messageType == "image"
+              ? "📷 Photo"
+              : message.messageType == "audio"
+                  ? "🎤 Voice message"
+                  : message.message,
+      "lastMessageTime":
+          DateTime.now().millisecondsSinceEpoch,
+    });
+  }
+
   Future<void> setTypingStatus(
     String receiverId,
     bool isTyping,

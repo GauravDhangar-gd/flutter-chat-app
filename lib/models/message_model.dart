@@ -25,6 +25,9 @@ class MessageModel {
   final List<String> deletedFor;
 
   final String reaction;
+  final bool isForwarded;
+
+  final String forwardedFrom;
 
 
   MessageModel({
@@ -44,6 +47,8 @@ class MessageModel {
     this.deletedForEveryone = false,
     this.deletedFor = const [],
     this.reaction = "",
+    this.isForwarded = false,
+    this.forwardedFrom = "",
     this.audioUrl = "",
     this.audioDuration = 0,
   });
@@ -67,6 +72,8 @@ class MessageModel {
       "deletedForEveryone": deletedForEveryone,
       "deletedFor": deletedFor,
       "reaction": reaction,
+      "isForwarded": isForwarded,
+      "forwardedFrom": forwardedFrom,
     };
   }
 
@@ -100,6 +107,12 @@ class MessageModel {
             map["deletedFor"] ?? [],
           ),
       reaction: map["reaction"] ?? "",
+
+      isForwarded:
+          map["isForwarded"] ?? false,
+
+      forwardedFrom:
+          map["forwardedFrom"] ?? "",
     );
   }
 }

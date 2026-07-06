@@ -16,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import '../widgets/audio_message.dart';
 import 'search_screen.dart';
 import '../services/wallpaper_service.dart';
+import 'forward_screen.dart';
 
 
 
@@ -316,40 +317,46 @@ Future<void> changeWallpaper() async {
 
                 const SizedBox(width: 12),
 
-                Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.name,
-                      style: const TextStyle(
-                        fontSize: 18,
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 18,
+                        ),
                       ),
-                    ),
-
-                    StreamBuilder<bool>(
-                      stream: chatService.getTypingStatus(
-                        widget.user.uid,
-                      ),
-                      builder: (context, typingSnapshot) {
-                        final typing =
-                            typingSnapshot.data ?? false;
-
-                        return Text(
-                          typing
-                              ? "typing..."
-                              : user.isOnline
-                                  ? "🟢 Online"
-                                  : user.lastSeen == null
-                                      ? "Offline"
-                                      : "Last seen ${DateFormat('dd MMM, hh:mm a').format(user.lastSeen!)}",
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
-                        );
-                      },
-                    )
-                  ],
+                  
+                      StreamBuilder<bool>(
+                        stream: chatService.getTypingStatus(
+                          widget.user.uid,
+                        ),
+                        builder: (context, typingSnapshot) {
+                          final typing =
+                              typingSnapshot.data ?? false;
+                  
+                          return Text(
+                            typing
+                                ? "typing..."
+                                : user.isOnline
+                                    ? "🟢 Online"
+                                    : user.lastSeen == null
+                                        ? "Offline"
+                                        : "Last seen ${DateFormat('dd MMM, hh:mm a').format(user.lastSeen!)}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                            ),
+                          );
+                        },
+                      )
+                    ],
+                  ),
                 ),
               ],
             );
@@ -537,6 +544,13 @@ Future<void> changeWallpaper() async {
                                       Navigator.pop(context, "reply");
                                     },
                                   ),
+                                  ListTile(
+                                    leading: const Icon(Icons.forward),
+                                    title: const Text("Forward"),
+                                    onTap: () {
+                                      Navigator.pop(context, "forward");
+                                    },
+                                  ),
                                 ListTile(
                                   leading: const Icon(Icons.emoji_emotions),
                                   title: const Text("React"),
@@ -602,6 +616,17 @@ Future<void> changeWallpaper() async {
                             });
                             break;
 
+                            case "forward":
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ForwardScreen(
+                                    message: message,
+                                  ),
+                                ),
+                              );
+                              break;
+
                           case "delete_me":
                             await chatService.deleteForMe(
                               widget.user.uid,
@@ -654,6 +679,33 @@ Future<void> changeWallpaper() async {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if (message.isForwarded)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.forward,
+                                    size: 14,
+                                    color: isMe
+                                        ? Colors.white70
+                                        : Colors.black54,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "Forwarded",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontStyle: FontStyle.italic,
+                                      color: isMe
+                                          ? Colors.white70
+                                          : Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            if (message.isForwarded)
+                              const SizedBox(height: 6),
 
                             message.deletedForEveryone
                                 ? Row(
@@ -718,8 +770,8 @@ Future<void> changeWallpaper() async {
                                     color: message.messageType == "image"
                                         ? Colors.transparent
                                         : isMe
-                                            ? Colors.green
-                                            : Colors.grey.shade300,
+                                            ? const Color.fromARGB(255, 230, 236, 230)
+                                            : const Color.fromARGB(255, 36, 34, 34),
                                   ),
                                 ),
 
