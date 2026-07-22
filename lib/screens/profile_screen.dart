@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (file == null) return;
-
+    
     setState(() {
       uploading = true;
     });
@@ -60,11 +60,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final imageUrl = await storageService.uploadProfileImage(
         File(file.path),
       );
-      print(imageUrl);
 
       await firestoreService.updateProfilePhoto(
-        uid,
-        imageUrl,
+        uid:uid,
+        photoUrl: imageUrl,
       );
 
       await loadUser();
@@ -85,10 +84,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
     }
-
-    setState(() {
-      uploading = false;
-    });
+    if (mounted) {
+      setState(() {
+        uploading = false;
+      });
+    }
+    
   }
   Future<void> removePhoto() async {
 
@@ -131,6 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             GestureDetector(
               onTap: uploading ? null : pickImage,
               child: Stack(
+                
                 children: [
                   CircleAvatar(
                     radius: 65,
@@ -148,7 +150,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           )
                         : null,
                   ),
-
+                  if (uploading)
+                  const Positioned.fill(
+                    child: ColoredBox(
+                      color: Color.fromARGB(120, 0, 0, 0),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      ),
+                    ),
+                  ),
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -197,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 8),
 
             Text(
-              user!.email,
+              user!.phoneNumber,
               style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 18,
@@ -216,9 +233,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             Card(
               child: ListTile(
-                leading: const Icon(Icons.email),
-                title: const Text("Email"),
-                subtitle: Text(user!.email),
+                leading: const Icon(Icons.phone),
+                title: const Text("Phone Number"),
+                subtitle: Text(user!.phoneNumber),
               ),
             ),
 

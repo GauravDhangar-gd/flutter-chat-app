@@ -1,19 +1,21 @@
 class UserModel {
   final String uid;
   final String name;
-  final String email;
+  final String phoneNumber;
   final bool isOnline;
   final String photoUrl;
   final DateTime? lastSeen;
+  final DateTime? createdAt;
   final String fcmToken;
 
   UserModel({
     required this.uid,
     required this.name,
-    required this.email,
+    required this.phoneNumber,
     required this.isOnline,
     required this.photoUrl,
     this.lastSeen,
+    this.createdAt,
     this.fcmToken = "",
   });
 
@@ -21,10 +23,11 @@ class UserModel {
     return {
       "uid": uid,
       "name": name,
-      "email": email,
+      "phoneNumber": phoneNumber,
       "isOnline": isOnline,
       "photoUrl": photoUrl,
       "lastSeen": lastSeen?.millisecondsSinceEpoch,
+      "createdAt": createdAt?.millisecondsSinceEpoch,
       "fcmToken": fcmToken,
     };
   }
@@ -33,14 +36,15 @@ class UserModel {
     return UserModel(
       uid: map["uid"] ?? "",
       name: map["name"] ?? "",
-      email: map["email"] ?? "",
+      phoneNumber: map["phoneNumber"] ?? "",
       isOnline: map["isOnline"] ?? false,
       photoUrl: map["photoUrl"] ?? "",
       lastSeen: map["lastSeen"] != null
-      ? DateTime.fromMillisecondsSinceEpoch(
-          map["lastSeen"],
-        )
-      : null,
+          ? DateTime.fromMillisecondsSinceEpoch(map["lastSeen"])
+          : null,
+      createdAt: map["createdAt"] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map["createdAt"])
+          : null,
       fcmToken: map["fcmToken"] ?? "",
     );
   }

@@ -4,7 +4,6 @@ import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/home_screen.dart';
-import 'widgets/call_listener.dart';
 import 'services/notification_service.dart';
 import 'services/theme_service.dart';
 import 'package:provider/provider.dart';
@@ -12,9 +11,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotificationService().initialize();
 
   final themeService = ThemeService();
@@ -22,10 +19,7 @@ void main() async {
   await themeService.loadTheme();
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: themeService,
-      child: const MyApp(),
-    ),
+    ChangeNotifierProvider.value(value: themeService, child: const MyApp()),
   );
 }
 
@@ -37,7 +31,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,22 +45,16 @@ class _MyAppState extends State<MyApp> {
         colorSchemeSeed: Colors.blue,
         brightness: Brightness.light,
 
-        inputDecorationTheme:
-            const InputDecorationTheme(
+        inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,
         ),
 
-        elevatedButtonTheme:
-            ElevatedButtonThemeData(
+        elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            minimumSize: const Size(
-              double.infinity,
-              55,
-            ),
+            minimumSize: const Size(double.infinity, 55),
             shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
