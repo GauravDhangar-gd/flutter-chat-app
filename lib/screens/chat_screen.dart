@@ -25,6 +25,7 @@ import 'voice_call_screen.dart';
 import '../widgets/chat_app_bar.dart';
 import '../widgets/reply_preview.dart';
 import '../widgets/message_bubble.dart';
+import '../widgets/reaction_sheet.dart';
 
 
 
@@ -474,103 +475,10 @@ Future<void> changeWallpaper() async {
                           message.id == highlightedMessageId,
                       onLongPress: () async {
 
-                        final action = await showModalBottomSheet<String>(
-                          context: context,
-                          builder: (_) {
-                            return SafeArea(
-                              child: Wrap(
-                                children: [
-
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 16,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-
-                                        reactionButton("❤️"),
-
-                                        reactionButton("😂"),
-
-                                        reactionButton("👍"),
-
-                                        reactionButton("😮"),
-
-                                        reactionButton("😢"),
-
-                                      ],
-                                    ),
-                                  ),
-
-                                  const Divider(),
-
-                                  ListTile(
-                                    leading: const Icon(Icons.reply),
-                                    title: const Text("Reply"),
-                                    onTap: () {
-                                      Navigator.pop(context, "reply");
-                                    },
-                                  ),
-
-                                  ListTile(
-                                    leading: const Icon(Icons.forward),
-                                    title: const Text("Forward"),
-                                    onTap: () {
-                                      Navigator.pop(context, "forward");
-                                    },
-                                  ),
-
-                                  ListTile(
-                                    leading: const Icon(Icons.emoji_emotions),
-                                    title: const Text("React"),
-                                    onTap: () {
-                                      Navigator.pop(context, "react");
-                                    },
-                                  ),
-
-                                  ListTile(
-                                    leading: const Icon(Icons.delete_outline),
-                                    title: const Text("Delete for Me"),
-                                    onTap: () {
-                                      Navigator.pop(
-                                        context,
-                                        "delete_me",
-                                      );
-                                    },
-                                  ),
-
-                                  if (message.senderId ==
-                                      currentUser.uid)
-                                    ListTile(
-                                      leading: const Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
-                                      ),
-                                      title: const Text(
-                                        "Delete for Everyone",
-                                      ),
-                                      onTap: () {
-                                        Navigator.pop(
-                                          context,
-                                          "delete_everyone",
-                                        );
-                                      },
-                                    ),
-
-                                  ListTile(
-                                    leading: const Icon(Icons.close),
-                                    title: const Text("Cancel"),
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                        final action = await ReactionSheet.show(
+                          context,
+                          message,
+                          currentUser.uid,
                         );
 
                         switch (action) {
