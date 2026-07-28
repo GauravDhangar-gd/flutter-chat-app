@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import 'calls_screen.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
-import 'users_screen.dart';
-import 'calls_screen.dart';
-import 'status_screen.dart';
 import 'theme_screen.dart';
+import 'users_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +19,14 @@ class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver {
   final AuthService auth = AuthService();
   final FirestoreService firestoreService = FirestoreService();
+
+  int _currentIndex = 0;
+
+  late final List<Widget> _pages = [
+    const UsersScreen(),
+    CallsScreen(),
+    const ProfileScreen(),
+  ];
 
   @override
   void initState() {
@@ -58,10 +65,56 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  Future<void> logout() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Logout"),
+          content: const Text(
+            "Are you sure you want to logout?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text("Logout"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    await firestoreService.updateUserStatus(
+      isOnline: false,
+    );
+
+    await auth.logout();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Flutter Chat"),
         actions: [
           IconButton(
             icon: const Icon(Icons.palette),
@@ -81,132 +134,38 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              bool? logout = await showDialog(
-                context: context,
-                builder: (_) {
-                  return AlertDialog(
-                    title: const Text("Logout"),
-                    content: const Text(
-                      "Are you sure you want to logout?",
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context, false);
-                        },
-                        child: const Text("Cancel"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context, true);
-                        },
-                        child: const Text("Logout"),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              if (logout == true) {
-                await firestoreService.updateUserStatus(
-                  isOnline: false,
-                );
-
-                await auth.logout();
-
-                if (!mounted) return;
-
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const LoginScreen(),
-                  ),
-                );
-              }
-            },
+            tooltip: "Logout",
+            onPressed: logout,
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.chat,
-              size: 100,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Welcome to Flutter Chat 🎉",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.person),
-                label: const Text(
-                  "My Profile",
-                  style: TextStyle(fontSize: 18),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ProfileScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.chat),
-                label: const Text(
-                  "Open Chats",
-                  style: TextStyle(fontSize: 18),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const UsersScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.call),
-                label: const Text(
-                  "Call History",
-                  style: TextStyle(fontSize: 18),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CallsScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+
+      body: _pages[_currentIndex],
+
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.chat_bubble_outline),
+            selectedIcon: Icon(Icons.chat_bubble),
+            label: "Chats",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.call_outlined),
+            selectedIcon: Icon(Icons.call),
+            label: "Calls",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: "Profile",
+          ),
+        ],
       ),
     );
   }

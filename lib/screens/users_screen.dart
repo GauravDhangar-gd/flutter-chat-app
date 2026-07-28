@@ -98,77 +98,103 @@ class UsersScreen extends StatelessWidget {
                             : "Last seen ${formatLastSeen(user.lastSeen!)}";
                   }
 
-                  return ListTile(
-                    leading: CircleAvatar(
-                      radius: 28,
-                      backgroundImage:
-                          user.photoUrl.isNotEmpty
-                              ? NetworkImage(
-                                  user.photoUrl,
-                                )
-                              : null,
-                      child: user.photoUrl.isEmpty
-                          ? Text(
-                              user.name[0]
-                                  .toUpperCase(),
-                            )
-                          : null,
+                 return Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: ListTile(
+                      leading: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundImage: user.photoUrl.isNotEmpty
+                                ? NetworkImage(user.photoUrl)
+                                : null,
+                            child: user.photoUrl.isEmpty
+                                ? Text(
+                                    user.name[0].toUpperCase(),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : null,
+                          ),
 
-                    title: Text(
-                      user.name,
-                      style: const TextStyle(
-                        fontWeight:
-                            FontWeight.bold,
+                          if (user.isOnline)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                height: 14,
+                                width: 14,
+                                decoration: BoxDecoration(
+                                  color: Colors.green,
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    width: 2,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
 
-                    subtitle: Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
-                    ),
+                      title: Text(
+                        user.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
 
-                    trailing: Column(
-                      mainAxisAlignment:
-                          MainAxisAlignment
-                              .center,
-                      children: [
-                        if (time.isNotEmpty)
-                          Text(
-                            time,
-                            style:
-                                const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment:
+                            MainAxisAlignment
+                                .center,
+                        children: [
+                          if (time.isNotEmpty)
+                            Text(
+                              time,
+                              style:
+                                  const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                        ],
+                      ),
+
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ChatScreen(
+                              user: user,
                             ),
                           ),
-
-                        const SizedBox(height: 5),
-
-                        CircleAvatar(
-                          radius: 5,
-                          backgroundColor:
-                              user.isOnline
-                                  ? Colors.green
-                                  : Colors.grey,
-                        ),
-                      ],
+                        );
+                      },
                     ),
-
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ChatScreen(
-                            user: user,
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                 );
                 },
               );
             },
