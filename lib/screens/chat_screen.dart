@@ -24,6 +24,7 @@ import 'calling_screen.dart';
 import 'voice_call_screen.dart';
 import '../widgets/chat_app_bar.dart';
 import '../widgets/reply_preview.dart';
+import '../widgets/message_bubble.dart';
 
 
 
@@ -466,8 +467,13 @@ Future<void> changeWallpaper() async {
                         message.senderId ==
                             currentUser.uid;
 
-                    return GestureDetector(
+                   return MessageBubble(
+                      message: message,
+                      isMe: isMe,
+                      isHighlighted:
+                          message.id == highlightedMessageId,
                       onLongPress: () async {
+
                         final action = await showModalBottomSheet<String>(
                           context: context,
                           builder: (_) {
@@ -475,14 +481,14 @@ Future<void> changeWallpaper() async {
                               child: Wrap(
                                 children: [
 
-                                  // Reaction Row
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 12,
                                       horizontal: 16,
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
 
                                         reactionButton("❤️"),
@@ -508,6 +514,7 @@ Future<void> changeWallpaper() async {
                                       Navigator.pop(context, "reply");
                                     },
                                   ),
+
                                   ListTile(
                                     leading: const Icon(Icons.forward),
                                     title: const Text("Forward"),
@@ -515,23 +522,28 @@ Future<void> changeWallpaper() async {
                                       Navigator.pop(context, "forward");
                                     },
                                   ),
-                                ListTile(
-                                  leading: const Icon(Icons.emoji_emotions),
-                                  title: const Text("React"),
-                                  onTap: () {
-                                    Navigator.pop(context, "react");
-                                  },
-                                ),
+
+                                  ListTile(
+                                    leading: const Icon(Icons.emoji_emotions),
+                                    title: const Text("React"),
+                                    onTap: () {
+                                      Navigator.pop(context, "react");
+                                    },
+                                  ),
 
                                   ListTile(
                                     leading: const Icon(Icons.delete_outline),
                                     title: const Text("Delete for Me"),
                                     onTap: () {
-                                      Navigator.pop(context, "delete_me");
+                                      Navigator.pop(
+                                        context,
+                                        "delete_me",
+                                      );
                                     },
                                   ),
 
-                                  if (message.senderId == currentUser.uid)
+                                  if (message.senderId ==
+                                      currentUser.uid)
                                     ListTile(
                                       leading: const Icon(
                                         Icons.delete,
@@ -580,16 +592,16 @@ Future<void> changeWallpaper() async {
                             });
                             break;
 
-                            case "forward":
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ForwardScreen(
-                                    message: message,
-                                  ),
+                          case "forward":
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ForwardScreen(
+                                  message: message,
                                 ),
-                              );
-                              break;
+                              ),
+                            );
+                            break;
 
                           case "delete_me":
                             await chatService.deleteForMe(
@@ -606,185 +618,8 @@ Future<void> changeWallpaper() async {
                             break;
                         }
                       },
-                    child: Align(
-                      alignment: isMe
-                          ? Alignment
-                              .centerRight
-                          : Alignment
-                              .centerLeft,
-                      child: Container(
-                        margin:
-                            const EdgeInsets
-                                .all(8),
-
-                        padding:
-                            const EdgeInsets
-                                .all(12),
-
-                        decoration:
-                            BoxDecoration(
-                              color: message.id == highlightedMessageId
-                                  ? Colors.yellow.shade300
-                                  : isMe
-                                    ? Colors.green.withOpacity(0.90)
-                                    : Colors.white.withOpacity(0.90),
-
-                          borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(18),
-                            topRight: const Radius.circular(18),
-                            bottomLeft:
-                                Radius.circular(isMe ? 18 : 0),
-                            bottomRight:
-                                Radius.circular(isMe ? 0 : 18),
-                          ),
-                        ),
-
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (message.isForwarded)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.forward,
-                                    size: 14,
-                                    color: isMe
-                                        ? Colors.white70
-                                        : Colors.black54,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    "Forwarded",
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontStyle: FontStyle.italic,
-                                      color: isMe
-                                          ? Colors.white70
-                                          : Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                            if (message.isForwarded)
-                              const SizedBox(height: 6),
-                                  message.deletedForEveryone
-                                      ? Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: const [
-                                            Icon(
-                                              Icons.block,
-                                              size: 18,
-                                              color: Colors.grey,
-                                            ),
-                                            SizedBox(width: 6),
-                                            Text(
-                                              "This message was deleted",
-                                              style: TextStyle(
-                                                fontStyle: FontStyle.italic,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-
-                                      : message.messageType == "image"
-
-                                          ? ImageMessage(
-                                              imageUrl: message.imageUrl,
-                                            )
-
-                                          : message.messageType == "audio"
-
-                                              ? AudioMessage(
-                                                  audioUrl: message.audioUrl,
-                                                )
-
-
-                                              : message.messageType == "video"
-
-                                                  ? VideoMessage(
-                                                      videoUrl: message.videoUrl,
-                                                    )
-
-                                                  : Text(
-                                                      message.message,
-                                                      style: TextStyle(
-                                                        color: isMe
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-
-                            const SizedBox(height: 5),
-
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-
-                                Text(
-                                  DateFormat('hh:mm a')
-                                      .format(message.timestamp),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: message.messageType == "image"
-                                        ? Colors.transparent
-                                        : isMe
-                                            ? const Color.fromARGB(255, 230, 236, 230)
-                                            : const Color.fromARGB(255, 36, 34, 34),
-                                  ),
-                                ),
-
-                                if (isMe)
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.only(left: 4),
-                                    child: Icon(
-                                      message.status == "read"
-                                          ? Icons.done_all
-                                          : Icons.done,
-                                      size: 16,
-                                      color: message.status == "read"
-                                          ? Colors.blue
-                                          : Colors.white70,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            if (message.reaction.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      message.reaction,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
                     );
+                    
                   },
                 );
               },
