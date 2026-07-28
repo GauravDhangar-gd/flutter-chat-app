@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/message_model.dart';
 import '../models/user_model.dart';
 import '../services/chat_service.dart';
@@ -8,18 +7,12 @@ import '../services/firestore_service.dart';
 import 'dart:io';
 import 'dart:async';
 import '../services/media_service.dart';
-import '../widgets/image_message.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:record/record.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
-import '../widgets/audio_message.dart';
-import 'search_screen.dart';
 import '../services/wallpaper_service.dart';
 import 'forward_screen.dart';
-import '../widgets/video_message.dart';
 import '../services/call_service.dart';
-import 'video_call_screen.dart';
 import 'calling_screen.dart';
 import 'voice_call_screen.dart';
 import '../widgets/chat_app_bar.dart';
@@ -27,6 +20,7 @@ import '../widgets/reply_preview.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/reaction_sheet.dart';
 import '../widgets/message_input.dart';
+
 
 
 
@@ -57,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final AudioRecorder recorder = AudioRecorder();
   final AudioPlayer player = AudioPlayer();
   bool isRecording = false;
-  String? audioPath;
+  
 
   final ChatService chatService = ChatService();
 
@@ -210,17 +204,7 @@ Future<void> sendMessage() async {
     }
   }
 
-  Widget reactionButton(String emoji) {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context, emoji);
-      },
-      child: Text(
-        emoji,
-        style: const TextStyle(fontSize: 28),
-      ),
-    );
-  }
+  
 Future<void> changeWallpaper() async {
   final image = await imageService.pickFromGallery();
 
@@ -280,7 +264,7 @@ Future<void> changeWallpaper() async {
         const RecordConfig(),
         path: recordedPath!,
       );
-
+      
       setState(() {
         isRecording = true;
         recordingDuration = Duration.zero;
@@ -299,7 +283,8 @@ Future<void> changeWallpaper() async {
 
   Future<void> stopRecording() async {
     final path = await recorder.stop();
-
+    recordingTimer?.cancel();
+    recordingTimer = null;
     setState(() {
       isRecording = false;
     });

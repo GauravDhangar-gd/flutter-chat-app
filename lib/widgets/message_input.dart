@@ -1,6 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-
+import '../widgets/attachment_sheet.dart';
 class MessageInput extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -50,19 +50,16 @@ class MessageInput extends StatelessWidget {
                   onPressed: onEmojiPressed,
                 ),
 
-                IconButton(
-                  icon: const Icon(Icons.videocam),
-                  onPressed: onVideo,
-                ),
-
-                IconButton(
-                  icon: const Icon(Icons.photo),
-                  onPressed: onGallery,
-                ),
-
-                IconButton(
-                  icon: const Icon(Icons.camera_alt),
-                  onPressed: onCamera,
+               IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () {
+                    AttachmentSheet.show(
+                      context,
+                      onCamera: onCamera,
+                      onGallery: onGallery,
+                      onVideo: onVideo,
+                    );
+                  },
                 ),
 
                 Expanded(
