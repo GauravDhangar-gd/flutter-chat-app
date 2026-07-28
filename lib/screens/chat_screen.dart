@@ -26,6 +26,7 @@ import '../widgets/chat_app_bar.dart';
 import '../widgets/reply_preview.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/reaction_sheet.dart';
+import '../widgets/message_input.dart';
 
 
 
@@ -534,134 +535,35 @@ Future<void> changeWallpaper() async {
             ),
           ),
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-
-                  if (replyingMessage != null)
-                    ReplyPreview(
-                      message: replyingMessage!,
-                      receiver: widget.user,
-                      currentUserId: currentUser.uid,
-                      onCancel: () {
-                        setState(() {
-                          replyingMessage = null;
-                        });
-                      },
-                    ),
-
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.emoji_emotions_outlined),
-                        onPressed: toggleEmojiKeyboard,
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.videocam,
-                        ),
-                        onPressed: pickVideo,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.photo),
-                        onPressed: pickGalleryImage,
-                      ),
-
-                      IconButton(
-                        icon: const Icon(Icons.camera_alt),
-                        onPressed: pickCameraImage,
-                      ),
-
-                      Expanded(
-                        child: TextField(
-                          controller: messageController,
-                          focusNode: focusNode,
-                          onChanged: onTyping,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => sendMessage(),
-
-                          decoration: InputDecoration(
-                            hintText: "Type a message...",
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 8),
-
-                      CircleAvatar(
-                        radius: 28,
-                        child: messageController.text.trim().isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.send),
-                                onPressed: sendMessage,
-                              )
-                            : GestureDetector(
-                                onLongPressStart: (_) {
-                                  startRecording();
-                                },
-                                onLongPressEnd: (_) {
-                                  stopRecording();
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Icon(
-                                    isRecording
-                                        ? Icons.mic
-                                        : Icons.mic_none,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (showEmoji)
-          SizedBox(
-            height: 280,
-            child: EmojiPicker(
-              onEmojiSelected: (category, emoji) {
-                messageController.text += emoji.emoji;
+          if (replyingMessage != null)
+            ReplyPreview(
+              message: replyingMessage!,
+              receiver: widget.user,
+              currentUserId: currentUser.uid,
+              onCancel: () {
+                setState(() {
+                  replyingMessage = null;
+                });
               },
-              config: const Config(
-                height: 280,
-                checkPlatformCompatibility: true,
-              ),
             ),
+
+          MessageInput(
+            controller: messageController,
+            focusNode: focusNode,
+            showEmoji: showEmoji,
+            isRecording: isRecording,
+            onEmojiPressed: toggleEmojiKeyboard,
+            onVideo: pickVideo,
+            onGallery: pickGalleryImage,
+            onCamera: pickCameraImage,
+            onTyping: onTyping,
+            onSend: sendMessage,
+            onStartRecording: startRecording,
+            onStopRecording: stopRecording,
           ),
-        ],
-      ),
-    ),
+         ],
+        ),
+     ),
     );
   }
-  @override
-  void dispose() {
-    _typingTimer?.cancel();
-
-    chatService.setTypingStatus(
-      widget.user.uid,
-      false,
-    );
-
-    messageController.dispose();
-    scrollController.dispose();
-    focusNode.dispose();
-
-    super.dispose();
-  }
-}
+}  
